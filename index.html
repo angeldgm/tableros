@@ -181,7 +181,7 @@
         .app-shell {
             width: min(1500px, 100%);
             margin: 0 auto;
-            padding: 1.5rem 1.25rem 3rem;
+            padding: 1.5rem 0rem 3rem;
         }
 
         .board-header {
@@ -189,7 +189,7 @@
             align-items: flex-start;
             justify-content: space-between;
             gap: 1rem;
-            margin-bottom: 1.25rem;
+            padding: 0rem 1.25rem 1.25rem;
         }
 
         .board-name {
@@ -250,7 +250,6 @@
         .columns {
             display: flex;
             align-items: flex-start;
-            gap: 1rem;
             min-height: 20rem;
             padding-bottom: 1rem;
             overflow-x: auto;
@@ -544,7 +543,15 @@
             background: #a92f46;
         }
 
-        @media (max-width: 300px) {
+        .transparent {
+            opacity: 0.5;
+        }
+
+        @media (max-width: 500px) {
+            .column {
+                flex: 0 0 90%;
+            }
+
             /* .toolbar {
                 align-items: stretch;
                 flex-wrap: wrap;
@@ -682,6 +689,10 @@
         </section>
 
         <section id="columns" class="columns" aria-label="Board columns"></section>
+
+        <section>
+            <button id="download-app" class="button transparent">Descargar esta página</button>
+        </section>
     </main>
 
     <input
@@ -711,8 +722,22 @@
             addColumn: document.getElementById("add-column"),
             deleteBoard: document.getElementById("delete-board"),
             columns: document.getElementById("columns"),
-            toast: document.getElementById("toast")
+            toast: document.getElementById("toast"),
+            downloadAppButton: document.getElementById("download-app")
         };
+
+        ui.downloadAppButton.addEventListener("click", () => {
+            const html = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
+            const blob = new Blob([html], { type: "text/html;charset=utf-8" });
+            const url = URL.createObjectURL(blob);
+
+            const link = document.createElement("a");
+            link.href = url;
+            link.download = "page.html";
+            link.click();
+
+            URL.revokeObjectURL(url);
+        });
 
         let boardData = loadBoardData();
         let currentBoardId = boardData.boards[0]?.id ?? null;
@@ -1041,7 +1066,7 @@
                     return {
                         id: columnId,
                         title: String(
-                            column.title ?? column.name ?? `Column ${columnIndex + 1}`
+                            column.title ?? column.name ?? `Columna ${columnIndex + 1}`
                         ),
                         children: sourceChildren.map(child =>
                             normalizeChild(child, usedItemIds)
@@ -1198,7 +1223,7 @@
             const options = boardData.boards.map(board => {
                 const option = document.createElement("option");
                 option.value = board.id;
-                option.textContent = board.name || "Untitled board";
+                option.textContent = board.name || "Tablero sin título";
                 return option;
             });
 
