@@ -624,22 +624,20 @@
             </button>
             <button id="import-board" class="toolbar-actions-item button small" type="button">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                     viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                     aria-label="Import" role="img">
-                  <path d="M12 3v12"/>
-                  <path d="m7 10 5 5 5-5"/>
-                  <path d="M5 17v4h14v-4"/>
+                    viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                    aria-hidden="true">
+                <path d="M3 7a2 2 0 0 1 2-2h5l2 2h7a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
                 </svg>
             </button>
             <button id="export-board" class="toolbar-actions-item button small" type="button">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                     viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                     aria-label="Export" role="img">
-                  <path d="M12 15V3"/>
-                  <path d="m7 8 5-5 5 5"/>
-                  <path d="M5 17v4h14v-4"/>
+                    viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                    aria-hidden="true">
+                <path d="M12 3v12"/>
+                <path d="m7 10 5 5 5-5"/>
+                <path d="M5 20h14"/>
                 </svg>
             </button>
         </div>
@@ -874,25 +872,81 @@
             return documentFragment.body.innerHTML;
         }
 
+        function linkifyTextNodes(root) {
+            const walker = document.createTreeWalker(
+                root,
+                NodeFilter.SHOW_TEXT,
+                {
+                    acceptNode(node) {
+                        // Don't linkify text that's already inside a link or non-text element.
+                        if (node.parentElement?.closest("a, script, style, textarea")) {
+                            return NodeFilter.FILTER_REJECT;
+                        }
+                        return NodeFilter.FILTER_ACCEPT;
+                    }
+                }
+            );
+
+            const textNodes = [];
+            while (walker.nextNode()) textNodes.push(walker.currentNode);
+
+            const urlRegex = /\bhttps?:\/\/[^\s<]+/gi;
+
+            for (const textNode of textNodes) {
+                const text = textNode.nodeValue;
+                const fragment = document.createDocumentFragment();
+                let lastIndex = 0;
+                let match;
+
+                urlRegex.lastIndex = 0;
+
+                while ((match = urlRegex.exec(text))) {
+                    // Leave common closing punctuation outside the link.
+                    const url = match[0].replace(/[),.!?;:]+$/, "");
+                    if (!url) continue;
+
+                    const start = match.index;
+                    const end = start + url.length;
+
+                    fragment.append(
+                        document.createTextNode(text.slice(lastIndex, start))
+                    );
+
+                    const link = document.createElement("a");
+                    link.href = url;
+                    link.textContent = url;
+                    fragment.append(link);
+
+                    lastIndex = end;
+                }
+
+                if (lastIndex) {
+                    fragment.append(document.createTextNode(text.slice(lastIndex)));
+                    textNode.replaceWith(fragment);
+                }
+            }
+        }
+
         function toSafeRichText(value) {
             const text = String(value ?? "");
-
-            if (!text.trim()) {
-                return "";
-            }
+            if (!text.trim()) return "";
 
             const looksLikeHtml =
-                /<\/?(?:p|div|br|b|strong|i|em|u|a|ul|ol|li|blockquote)\b/i.test(
-                    text
+                /<\/?(?:p|div|br|b|strong|i|em|u|a|ul|ol|li|blockquote)\b/i.test(text);
+
+            const html = looksLikeHtml
+                ? sanitizeRichText(text)
+                : sanitizeRichText(
+                    `<div>${escapeHtml(text).replace(/\r?\n/g, "<br>")}</div>`
                 );
 
-            if (looksLikeHtml) {
-                return sanitizeRichText(text);
-            }
+            const container = document.createElement("div");
+            container.innerHTML = html;
 
-            return sanitizeRichText(
-                `<div>${escapeHtml(text).replace(/\r?\n/g, "<br>")}</div>`
-            );
+            linkifyTextNodes(container);
+
+            // Sanitize again so the generated markup also passes your sanitizer.
+            return sanitizeRichText(container.innerHTML);
         }
 
         function uniqueId(preferred, prefix, usedIds) {
@@ -1020,7 +1074,7 @@
                         columns: [
                             {
                                 id: makeId("column"),
-                                title: "Visit notes",
+                                title: "Notas del viaje",
                                 children: [
                                     {
                                         id: makeId("item"),
@@ -1188,6 +1242,15 @@
                     </li>
                 `;
 
+            // <button
+            //     data-action="format"
+            //     data-command="createLink"
+            //     type="button"
+            //     title="Añadir enlance"
+            // >
+            //     Enlace
+            // </button>
+
             return `
                 <section class="column" data-column-id="${escapeHtml(column.id)}">
                     <header class="column-header">
@@ -1204,7 +1267,7 @@
                             class="button small danger"
                             data-action="delete-column"
                             type="button"
-                            title="Delete column"
+                            title="Borrar columna"
                         >
                             <svg aria-hidden="true" viewBox="0 0 24 24" width="16" height="16"
                                 fill="none" stroke="currentColor" stroke-width="2"
@@ -1275,15 +1338,6 @@
                                     title="Underline"
                                 >
                                     <u>U</u>
-                                </button>
-
-                                <button
-                                    data-action="format"
-                                    data-command="createLink"
-                                    type="button"
-                                    title="Añadir enlance"
-                                >
-                                    Enlace
                                 </button>
                             </div>
 
@@ -1640,28 +1694,29 @@
                 return;
             }
 
-            if (command === "createLink") {
-                if (range.collapsed) {
-                    showToast("Selecciona el texto primero para añadir un enlace.");
-                    return;
-                }
+            // if (command === "createLink") {
+            //     if (range.collapsed) {
+            //         showToast("Selecciona el texto primero para añadir un enlace.");
+            //         return;
+            //     }
 
-                const enteredLink = window.prompt("Link URL:");
+            //     const enteredLink = window.prompt("Link URL:");
 
-                if (enteredLink === null) {
-                    return;
-                }
+            //     if (enteredLink === null) {
+            //         return;
+            //     }
 
-                const link = normalizeLink(enteredLink);
+            //     const link = normalizeLink(enteredLink);
 
-                if (!link) {
-                    showToast("Enlace no permitido.", "error");
-                    return;
-                }
+            //     if (!link) {
+            //         showToast("Enlace no permitido.", "error");
+            //         return;
+            //     }
 
-                restoreSelection(editor, range);
-                document.execCommand("createLink", false, link);
-            } else {
+            //     restoreSelection(editor, range);
+            //     document.execCommand("createLink", false, link);
+            // }
+            else {
                 restoreSelection(editor, range);
                 document.execCommand(command, false);
             }
@@ -1816,7 +1871,7 @@
             pendingPhotos.delete(columnId);
             loadingPhotos.delete(columnId);
 
-            commitAndRender(isEditing ? "Item updated." : "Item added.");
+            commitAndRender(isEditing ? "Actualizado" : "Añadido");
         }
 
         function handleColumnsClick(event) {
@@ -1890,7 +1945,7 @@
                     return;
                 }
 
-                if (!window.confirm("Delete this item?")) {
+                if (!window.confirm("¿Borrar este elemento?")) {
                     return;
                 }
 
@@ -1898,7 +1953,7 @@
                     item => item.id !== itemElement.dataset.itemId
                 );
 
-                commitAndRender("Item deleted.");
+                commitAndRender("Borrado");
                 return;
             }
 
@@ -2110,7 +2165,7 @@
             );
 
             cleanupDrag();
-            commitAndRender("Item order updated.");
+            commitAndRender("Orden actualizado");
         }
 
         function cleanupDrag() {
@@ -2150,7 +2205,7 @@
             editingItem = null;
             cancelPhotoReads();
 
-            commitAndRender("Board created.");
+            commitAndRender("Tablero creado");
         }
 
         function deleteBoard() {
@@ -2168,7 +2223,7 @@
                 return;
             }
 
-            if (!window.confirm(`Delete the board “${board.name}”?`)) {
+            if (!window.confirm(`¿Borrar el tablero “${board.name}”?`)) {
                 return;
             }
 
@@ -2185,7 +2240,7 @@
             editingItem = null;
             cancelPhotoReads();
 
-            commitAndRender("Board deleted.");
+            commitAndRender("Tablero borrado");
         }
 
         function addColumn() {
@@ -2211,7 +2266,7 @@
                 children: []
             });
 
-            commitAndRender("Column added.");
+            commitAndRender("Columna añadida");
         }
 
         function importBoard() {
@@ -2247,7 +2302,7 @@
                 editingItem = null;
                 cancelPhotoReads();
 
-                commitAndRender("Board data imported.");
+                commitAndRender("Datos importados");
             } catch (error) {
                 showToast(
                     `Error al importar: ${error.message}`,
@@ -2325,7 +2380,7 @@
 
             if (selectedOption) {
                 selectedOption.textContent =
-                    board.name || "Untitled board";
+                    board.name || "Tablero sin título";
             }
 
             schedulePersist();
