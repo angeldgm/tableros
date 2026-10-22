@@ -586,7 +586,7 @@
                     type="button"
                     id="board-menu-button"
                     class="toolbar-actions-item button small"
-                    aria-label="Choose board"
+                    aria-label="Escoger tablero"
                     aria-expanded="false"
                     aria-controls="board-menu"
                 >
@@ -614,7 +614,7 @@
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
                      viewBox="0 0 24 24" fill="none" stroke="currentColor"
                      stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                     aria-label="Add new board" role="img">
+                     aria-label="Añadir tablero" role="img">
                   <path d="M12 5v14"/>
                   <path d="M5 12h14"/>
                 </svg>
@@ -659,7 +659,7 @@
                     class="board-name"
                     type="text"
                     maxlength="120"
-                    placeholder="Untitled board"
+                    placeholder="Tablero sin título"
                 >
                 <p class="hint">
                     
@@ -678,7 +678,7 @@
                         stroke-width="1.8"
                         stroke-linecap="round"
                         stroke-linejoin="round"
-                        aria-label="Add column"
+                        aria-label="Añadir columna"
                         role="img"
                         >
                         <rect x="3" y="4" width="11" height="16" rx="1.5" />
@@ -1132,7 +1132,7 @@
                     }
                 }
             } catch (error) {
-                console.warn("Could not load saved board data.", error);
+                console.warn("No se pudieron cargar los datos.", error);
             }
 
             return createDefaultData();
@@ -1146,7 +1146,7 @@
                 );
                 return true;
             } catch (error) {
-                console.warn("Could not save board data locally.", error);
+                console.warn("No se pudieron guardar los datos.", error);
                 return false;
             }
         }
@@ -1241,8 +1241,8 @@
             if (!board) {
                 ui.columns.innerHTML = `
                     <div class="empty-state">
-                        <h2>No boards</h2>
-                        <p>Create a board or import a JSON file.</p>
+                        <h2>No hay tableros</h2>
+                        <p>Puedes crear un tablero o importar datos</p>
                     </div>
                 `;
                 return;
@@ -1373,7 +1373,7 @@
                                 role="textbox"
                                 aria-multiline="true"
                                 spellcheck="true"
-                                data-placeholder="Añade un texto..."
+                                data-placeholder="Escribe un texto..."
                             ></div>
                         </div>
 
@@ -1463,7 +1463,7 @@
                 } else {
                     body = `
                         <p class="hint">
-                            This photo has no valid base64 image data.
+                            Esta foto no tiene datos válidos en base64.
                         </p>
                     `;
                 }
@@ -1486,8 +1486,8 @@
                         class="drag-handle"
                         draggable="true"
                         type="button"
-                        title="Drag to sort"
-                        aria-label="Drag to sort item"
+                        title="Arrastra para reordenar"
+                        aria-label="Arrastra para reordenar"
                     >
                         ⠿
                     </button>
@@ -1571,7 +1571,7 @@
 
             if (loadingPhotos.has(columnId)) {
                 preview.hidden = true;
-                name.textContent = "Loading photo...";
+                name.textContent = "Cargando foto...";
                 return;
             }
 
@@ -1582,7 +1582,7 @@
                 preview.hidden = false;
             } else {
                 image.removeAttribute("src");
-                name.textContent = "No photo selected";
+                name.textContent = "Foto no seleccionada";
                 preview.hidden = true;
             }
         }
@@ -1607,7 +1607,7 @@
 
             editor.innerHTML = "";
             fileInput.value = "";
-            submitButton.textContent = "Add item";
+            submitButton.textContent = "Añadir";
             cancelButton.hidden = true;
 
             editingItem = null;
@@ -1641,7 +1641,7 @@
             );
 
             setComposerType(columnId, item.type);
-            submitButton.textContent = "Save changes";
+            submitButton.textContent = "Guardar cambios";
             cancelButton.hidden = false;
 
             if (item.type === "text") {
@@ -1794,7 +1794,7 @@
                 }
 
                 if (!isSafePhotoDataUrl(dataUrl)) {
-                    throw new Error("Unsupported image format.");
+                    throw new Error("Formato de imagen no soportado.");
                 }
 
                 pendingPhotos.set(columnId, {
@@ -2219,7 +2219,7 @@
                 columns: [
                     {
                         id: makeId("column"),
-                        title: "Column 1",
+                        title: "Columna 1",
                         children: []
                     }
                 ]
@@ -2275,7 +2275,7 @@
                 return;
             }
 
-            const suggestedTitle = `Column ${board.columns.length + 1}`;
+            const suggestedTitle = `Columna ${board.columns.length + 1}`;
             const enteredTitle = window.prompt(
                 "Nombre de la nueva columna:",
                 suggestedTitle
@@ -2311,11 +2311,11 @@
                 const normalized = normalizeData(rawData);
 
                 if (!normalized.boards.length) {
-                    throw new Error("The file does not contain any boards.");
+                    throw new Error("El archivo no contiene tableros.");
                 }
 
                 const confirmed = window.confirm(
-                    "Replace the current boards with the imported data?"
+                    "¿Reemplazar los datos actuales con los importados? Esto borrará los tableros no guardados"
                 );
 
                 if (!confirmed) {
