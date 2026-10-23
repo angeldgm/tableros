@@ -610,7 +610,7 @@
 
                 <ul id="board-menu" class="board-menu" hidden></ul>
             </label>
-            <button id="new-board" class="toolbar-actions-item button small" type="button">
+            <!-- <button id="new-board" class="toolbar-actions-item button small" type="button">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
                      viewBox="0 0 24 24" fill="none" stroke="currentColor"
                      stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
@@ -628,23 +628,33 @@
                     <path d="m19 6-1 14H6L5 6" />
                     <path d="M10 11v5M14 11v5" />
                 </svg>
-            </button>
+            </button> -->
             <button id="import-board" class="toolbar-actions-item button small" type="button">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
                     viewBox="0 0 24 24" fill="none" stroke="currentColor"
                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
                     aria-hidden="true">
-                <path d="M3 7a2 2 0 0 1 2-2h5l2 2h7a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                    <path d="M3 7a2 2 0 0 1 2-2h5l2 2h7a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
                 </svg>
             </button>
             <button id="export-board" class="toolbar-actions-item button small" type="button">
+                <!-- <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                    viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                    aria-hidden="true">
+                    <path d="M12 3v12"/>
+                    <path d="m7 10 5 5 5-5"/>
+                    <path d="M5 20h14"/>
+                </svg> -->
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
                     viewBox="0 0 24 24" fill="none" stroke="currentColor"
                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
                     aria-hidden="true">
-                <path d="M12 3v12"/>
-                <path d="m7 10 5 5 5-5"/>
-                <path d="M5 20h14"/>
+                    <circle cx="18" cy="5" r="3"/>
+                    <circle cx="6" cy="12" r="3"/>
+                    <circle cx="18" cy="19" r="3"/>
+                    <path d="m8.59 13.51 6.83 3.98"/>
+                    <path d="m15.41 6.51-6.82 3.98"/>
                 </svg>
             </button>
         </div>
@@ -715,12 +725,12 @@
             boardMenuButton: document.getElementById("board-menu-button"),
             boardMenu: document.getElementById("board-menu"),
             boardName: document.getElementById("board-name"),
-            newBoard: document.getElementById("new-board"),
+            // newBoard: document.getElementById("new-board"),
             importBoard: document.getElementById("import-board"),
             exportBoard: document.getElementById("export-board"),
             importFile: document.getElementById("import-file"),
             addColumn: document.getElementById("add-column"),
-            deleteBoard: document.getElementById("delete-board"),
+            // deleteBoard: document.getElementById("delete-board"),
             columns: document.getElementById("columns"),
             toast: document.getElementById("toast"),
             downloadAppButton: document.getElementById("download-app")
@@ -774,6 +784,16 @@
 
                 ui.boardMenu.appendChild(item);
             });
+
+            let itemAdd = document.createElement("li");
+            itemAdd.textContent = "✚ Añadir tablero";
+            itemAdd.addEventListener("click", addBoard);
+            ui.boardMenu.appendChild(itemAdd);
+
+            const itemDelete = document.createElement("li");
+            itemDelete.textContent = "✖ Eliminar tablero actual";
+            itemDelete.addEventListener("click", deleteBoard);
+            ui.boardMenu.appendChild(itemDelete);
         }
 
         ui.boardMenuButton.addEventListener("click", () => {
@@ -1236,7 +1256,7 @@
             ui.boardName.value = board?.name ?? "";
             ui.boardName.disabled = !board;
             ui.addColumn.disabled = !board;
-            ui.deleteBoard.disabled = !board || boardData.boards.length <= 1;
+            // ui.deleteBoard.disabled = !board || boardData.boards.length <= 1;
 
             if (!board) {
                 ui.columns.innerHTML = `
@@ -2412,8 +2432,8 @@
         });
 
         ui.boardName.addEventListener("change", flushScheduledPersist);
-        ui.newBoard.addEventListener("click", addBoard);
-        ui.deleteBoard.addEventListener("click", deleteBoard);
+        // ui.newBoard.addEventListener("click", addBoard);
+        // ui.deleteBoard.addEventListener("click", deleteBoard);
         ui.addColumn.addEventListener("click", addColumn);
         ui.importBoard.addEventListener("click", importBoard);
         ui.exportBoard.addEventListener("click", exportBoard);
