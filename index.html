@@ -65,8 +65,13 @@
 
         .toolbar {
             display: flex;
-            position: sticky;
-            top: 0;
+            /* position: sticky; */
+            position: fixed;
+            /* top: 0; */
+            bottom: 0;
+            border-radius: 50px;
+            left: 50%;
+            transform: translateX(-50%);
             z-index: 20;
             align-items: center;
             gap: 1rem;
@@ -138,7 +143,7 @@
 
         .board-menu {
             position: absolute;
-            top: 100%;
+            bottom: 100%;
             left: 0;
             z-index: 1000;
             min-width: 180px;
@@ -701,7 +706,11 @@
         <section id="columns" class="columns" aria-label="Board columns"></section>
 
         <section>
+            <br>
             <button id="download-app" class="button transparent">Descargar esta página</button>
+            <br>
+            <br>
+            <br>
         </section>
     </main>
 
