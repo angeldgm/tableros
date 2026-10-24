@@ -2400,8 +2400,11 @@
         }
 
         function importBoard() {
-            ui.importFile.value = "";
-            ui.importFile.click();
+            const ok = confirm("¿Importar desde archivo JSON? Esto borrará los tableros que no se hayan exportado");
+            if (ok) {
+                ui.importFile.value = "";
+                ui.importFile.click();
+            }
         }
 
         async function handleImportFile(event) {
@@ -2444,22 +2447,25 @@
         }
 
         function exportBoard() {
-            const json = JSON.stringify(boardData, null, 2);
-            const blob = new Blob([json], {
-                type: "application/json"
-            });
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement("a");
-            const date = new Date().toISOString().slice(0, 10);
+            const ok = confirm("¿Exportar tableros a un archivo JSON? Se guardará en Descargas");
+            if (ok) {
+                const json = JSON.stringify(boardData, null, 2);
+                const blob = new Blob([json], {
+                    type: "application/json"
+                });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement("a");
+                const date = new Date().toISOString().slice(0, 10);
 
-            link.href = url;
-            link.download = `boards-${date}.json`;
-            document.body.appendChild(link);
-            link.click();
-            link.remove();
+                link.href = url;
+                link.download = `boards-${date}.json`;
+                document.body.appendChild(link);
+                link.click();
+                link.remove();
 
-            window.setTimeout(() => URL.revokeObjectURL(url), 1000);
-            showToast("Se han exportado todos los tableros.", "success");
+                window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+                showToast("Se han exportado todos los tableros.", "success");
+            }
         }
 
         function updateUI(nextData) {
