@@ -32,6 +32,17 @@
             font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
         }
 
+        html.dark {
+            filter: invert(1) hue-rotate(180deg);
+        }
+
+        html.dark img,
+        html.dark video,
+        html.dark canvas,
+        html.dark picture {
+            filter: invert(1) hue-rotate(180deg);
+        }
+
         button,
         input,
         select {
@@ -552,6 +563,10 @@
             opacity: 0.5;
         }
 
+        .center {
+            text-align: center;
+        }
+
         @media (max-width: 500px) {
             .column {
                 flex: 0 0 90%;
@@ -634,6 +649,27 @@
                     <path d="M10 11v5M14 11v5" />
                 </svg>
             </button> -->
+            <button id="toggle-theme" class="toolbar-actions-item button small" type="button">
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.8"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    role="img"
+                    aria-label="Theme palette"
+                >
+                    <path d="M12 3a9 9 0 1 0 0 18h1.2a2 2 0 0 0 1.5-3.3 1.7 1.7 0 0 1 1.3-2.8H18a3 3 0 0 0 3-3c0-5-4-8.9-9-8.9Z"/>
+                    <circle cx="7.5" cy="11" r="1"/>
+                    <circle cx="10" cy="7.5" r="1"/>
+                    <circle cx="14" cy="7.5" r="1"/>
+                    <circle cx="17" cy="10.5" r="1"/>
+                </svg>
+            </button>
             <button id="import-board" class="toolbar-actions-item button small" type="button">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
                     viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -705,7 +741,7 @@
 
         <section id="columns" class="columns" aria-label="Board columns"></section>
 
-        <section>
+        <section class="center">
             <br>
             <button id="download-app" class="button transparent">Descargar esta página</button>
             <br>
@@ -727,6 +763,7 @@
         "use strict";
 
         const STORAGE_KEY = "board-editor-v1";
+        const STORAGE_KEY_DARK_THEME = "board-editor-v1-theme";
         const MAX_PHOTO_BYTES = 8 * 1024 * 1024;
 
         const ui = {
@@ -742,8 +779,19 @@
             // deleteBoard: document.getElementById("delete-board"),
             columns: document.getElementById("columns"),
             toast: document.getElementById("toast"),
-            downloadAppButton: document.getElementById("download-app")
+            downloadAppButton: document.getElementById("download-app"),
+            toggleThemeButton: document.getElementById("toggle-theme")
         };
+
+        let isDarkTheme = getThemeLocally();
+        if (isDarkTheme === "1") {
+            toggleTheme();
+        }
+        ui.toggleThemeButton.addEventListener("click", () => {
+            toggleTheme();
+            isDarkTheme = isDarkTheme === "1" ? "0" : "1";
+            persistThemeOrWarn();
+        })
 
         ui.downloadAppButton.addEventListener("click", () => {
             const html = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
@@ -752,7 +800,7 @@
 
             const link = document.createElement("a");
             link.href = url;
-            link.download = "page.html";
+            link.download = "tableros.html";
             link.click();
 
             URL.revokeObjectURL(url);
@@ -1180,6 +1228,23 @@
             }
         }
 
+        function getThemeLocally() {
+            return window.localStorage.getItem(STORAGE_KEY_DARK_THEME) ?? "0";
+        }
+
+        function saveThemeLocally() {
+            try {
+                window.localStorage.setItem(
+                    STORAGE_KEY_DARK_THEME,
+                    isDarkTheme
+                );
+                return true;
+            } catch (error) {
+                console.warn("No se pudieron guardar los datos.", error);
+                return false;
+            }
+        }
+
         function showStorageWarning() {
             showToast(
                 "El cambio está disponible en memoria, pero el almacenamiento del navegador está lleno o no disponible.",
@@ -1191,6 +1256,17 @@
             if (!saveLocally()) {
                 showStorageWarning();
             }
+        }
+
+        function persistThemeOrWarn() {
+            if (!saveThemeLocally()) {
+                showStorageWarning();
+            }
+        }
+
+        function toggleTheme() {
+            // document.documentElement.style.filter = document.documentElement.style.filter ? "" : "invert(1)";
+            document.documentElement.classList.toggle("dark");
         }
 
         function schedulePersist() {
