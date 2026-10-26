@@ -1517,8 +1517,14 @@
                                 </label>
 
                                 <span class="photo-name" data-photo-name>
-                                    Foto sin seleccionar
+                                    
                                 </span>
+
+                                <br>
+
+                                <button class="button paste-button" data-photo-paste>
+                                    Pegar foto
+                                </button>
                             </div>
 
                             <div class="selected-photo" data-photo-preview hidden>
@@ -1694,7 +1700,7 @@
             }
 
             const preview = composer.querySelector("[data-photo-preview]");
-            const image = composer.querySelector("[data-photo-image]");
+            const image = composer.querySelector("[data-photo-image]") || composer.querySelector("[data-photo-paste]");
             const name = composer.querySelector("[data-photo-name]");
             const photo = pendingPhotos.get(columnId);
 
@@ -1729,6 +1735,7 @@
 
             const editor = composer.querySelector("[data-editor]");
             const fileInput = composer.querySelector("[data-photo-file]");
+            const filePaste = composer.querySelector("[data-photo-paste]");
             const submitButton = composer.querySelector('button[type="submit"]');
             const cancelButton = composer.querySelector(
                 '[data-action="cancel-edit"]'
@@ -1736,7 +1743,11 @@
 
             editor.innerHTML = "";
             fileInput.value = "";
+            filePaste.value = "";
             submitButton.textContent = "Añadir";
+            submitButton.addEventListener("click", () => {
+                resetComposer(columnId);
+            })
             cancelButton.hidden = true;
 
             editingItem = null;
@@ -1900,6 +1911,10 @@
             const columnId = composer.dataset.columnId;
             const file = input.files?.[0];
 
+            handlePhotoChange(file, columnId);
+        }
+
+        async function handlePhotoChange(file, columnId) {
             if (!file) {
                 updatePhotoPreview(columnId);
                 return;
@@ -1998,7 +2013,7 @@
                 const photo = pendingPhotos.get(columnId);
 
                 if (!photo || !isSafePhotoDataUrl(photo.dataUrl)) {
-                    showToast("Escoge una foto válida antes de guardar.", "error");
+                    showToast("Recarga la página.", "error");
                     return;
                 }
 
@@ -2070,6 +2085,7 @@
                 pendingPhotos.delete(columnId);
                 loadingPhotos.delete(columnId);
                 composer.querySelector("[data-photo-file]").value = "";
+                composer.querySelector("[data-photo-paste]").value = "";
                 updatePhotoPreview(columnId);
                 return;
             }
@@ -2634,6 +2650,43 @@
         });
 
         render();
+
+        const pasteButtons = document.getElementsByClassName("paste-button");
+        for (let pasteButton of pasteButtons) {
+            pasteButton.addEventListener("click", async () => {
+                const composer = pasteButton.closest(".composer");
+                const columnId = composer.dataset.columnId;
+                try {
+                    if (!navigator.clipboard?.read) {
+                        showToast(
+                            `No compatible`,
+                            "error"
+                        );
+                    }
+
+                    const items = await navigator.clipboard.read();
+
+                    for (const item of items) {
+                        const imageType = item.types.find(type =>
+                            type.startsWith("image/")
+                        );
+
+                        if (imageType) {
+                            const blob = await item.getType(imageType);
+                            handlePhotoChange(blob, columnId);
+                            return;
+                        }
+                    }
+
+                    showToast(
+                        `No hay imagen en el portapapeles`,
+                        "error"
+                    );
+                } catch (error) {
+                    // Clipboard access may be denied or unavailable.
+                }
+            });
+        };
     </script>
 </body>
 </html>
