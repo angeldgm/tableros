@@ -263,6 +263,11 @@
             opacity: 0.2;
         }
 
+        .editor-toolbar .active {
+            background-color: black;
+            color: white;
+        }
+
         .columns {
             display: flex;
             align-items: flex-start;
@@ -1836,12 +1841,14 @@
                 return;
             }
 
+            editor.focus();
+
             const range = getSelectionRange(editor);
 
-            if (!range) {
-                showToast("Sitúa el cursor en el campo de texto primero.");
-                return;
-            }
+            // if (!range) {
+            //     showToast("Sitúa el cursor en el campo de texto primero.");
+            //     return;
+            // }
 
             // if (command === "createLink") {
             //     if (range.collapsed) {
@@ -1865,10 +1872,14 @@
             //     restoreSelection(editor, range);
             //     document.execCommand("createLink", false, link);
             // }
-            else {
-                restoreSelection(editor, range);
-                document.execCommand(command, false);
-            }
+            
+            // else {
+            //     restoreSelection(editor, range);
+            //     document.execCommand(command, false);
+            // }
+
+            restoreSelection(editor, range);
+            document.execCommand(command, false);
 
             editor.focus();
         }
@@ -2034,6 +2045,10 @@
 
             if (action === "format") {
                 const composer = button.closest(".composer");
+                const formatButtons = document.querySelectorAll('button[data-command="' + button.dataset.command + '"');
+                formatButtons.forEach((formatButton) => {
+                    formatButton.classList.toggle("active");
+                })
                 formatEditor(composer.dataset.columnId, button.dataset.command);
                 return;
             }
