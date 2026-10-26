@@ -1363,7 +1363,7 @@
                 `;
         }
 
-        function renderColumn(column) {
+        function renderColumn(column, index) {
             const items = column.children.length
                 ? column.children.map(renderItem).join("")
                 : `
@@ -1381,7 +1381,7 @@
             //     Enlace
             // </button>
 
-            return `
+            let html = `
                 <section class="column" data-column-id="${escapeHtml(column.id)}">
                     <header class="column-header">
                         <input
@@ -1391,8 +1391,25 @@
                             maxlength="120"
                             value="${escapeHtml(column.title)}"
                             aria-label="Column title"
-                        >
+                        >`
 
+            if (index !== 0) {
+                html += `
+                        <button
+                            class="button small"
+                            data-action="move-column-to-left"
+                            type="button"
+                            title="Mover columna hacia la izquierda"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-label="Añadir columna" role="img">
+                                <rect x="3" y="4" width="18" height="8" rx="1.5"></rect>
+                                <path d="M12 4v8"></path>
+                                <path d="M17.5 12H6.5m0 0 3-3m-3 3 3 3" transform="translate(0 6)""></path>
+                            </svg>
+                        </button>`
+                    }
+
+            html += `
                         <button
                             class="button small danger"
                             data-action="delete-column"
@@ -1533,6 +1550,8 @@
                     </form>
                 </section>
             `;
+
+            return html;
         }
 
         function renderItem(item) {
@@ -2113,6 +2132,43 @@
                 );
 
                 commitAndRender("Columna borrada.");
+            }
+
+            if (action === "move-column-to-left") {
+                const columnElement = button.closest(".column");
+                const board = getCurrentBoard();
+                const column = getColumn(board, columnElement.dataset.columnId);
+
+                if (!board || !column) {
+                    return;
+                }
+
+                if (board.columns.length === 1) {
+                    showToast(
+                        "Debe haber al menos dos columnas para mover.",
+                        "error"
+                    );
+                    return;
+                }
+
+                if (!window.confirm(`¿Mover “${column.title}” una posición hacia la izquierda?`)) {
+                    return;
+                }
+
+                console.log(board.columns);
+                console.log(column.id);
+                const columnToMove = board.columns.filter(
+                    currentColumn => currentColumn.id === column.id
+                )[0];
+
+                const columnToMoveIndex = board.columns.indexOf(columnToMove);
+                console.log(columnToMoveIndex);
+
+                if (columnToMoveIndex > 0) {
+                    [board.columns[columnToMoveIndex - 1], board.columns[columnToMoveIndex]] = [board.columns[columnToMoveIndex], board.columns[columnToMoveIndex - 1]];
+                }
+
+                commitAndRender("Columna movida.");
             }
         }
 
