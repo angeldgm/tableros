@@ -2452,7 +2452,7 @@
         }
 
         function addBoard() {
-            const suggestedName = `Board ${boardData.boards.length + 1}`;
+            const suggestedName = `Tablero ${boardData.boards.length + 1}`;
             const enteredName = window.prompt("Nombre del nuevo tablero:", suggestedName);
 
             if (enteredName === null) {
@@ -2590,10 +2590,11 @@
                 });
                 const url = URL.createObjectURL(blob);
                 const link = document.createElement("a");
-                const date = new Date().toISOString().slice(0, 10);
+                const date = new Date().toISOString();
+                const dateText = date.slice(0, 10).toString() + "_tableros_" + date.slice(11, 19).toString().replaceAll(":", "-");
 
                 link.href = url;
-                link.download = `boards-${date}.json`;
+                link.download = `${dateText}.json`;
                 document.body.appendChild(link);
                 link.click();
                 link.remove();
