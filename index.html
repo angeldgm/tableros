@@ -1163,7 +1163,7 @@
                 return {
                     id: boardId,
                     name: String(
-                        board.name ?? board.board ?? `Board ${boardIndex + 1}`
+                        board.name ?? board.board ?? `Tablero ${boardIndex + 1}`
                     ),
                     columns
                 };
@@ -1777,9 +1777,6 @@
             fileInput.value = "";
             filePaste.value = "";
             submitButton.textContent = "Añadir";
-            submitButton.addEventListener("click", () => {
-                resetComposer(columnId);
-            });
             cancelButton.hidden = true;
 
             editingItem = null;
@@ -1811,6 +1808,11 @@
             const cancelButton = composer.querySelector(
                 '[data-action="cancel-edit"]'
             );
+
+            const composerContent = composer.querySelector(".composer-content");
+            composer.querySelector(".plus-icon").hidden = true;
+            composer.querySelector(".minus-icon").hidden = false;
+            composerContent.hidden = false;
 
             setComposerType(columnId, item.type);
             submitButton.textContent = "Guardar cambios";
@@ -2539,7 +2541,7 @@
         }
 
         function importBoard() {
-            const ok = confirm("¿Importar desde archivo JSON? Esto borrará los tableros que no se hayan exportado");
+            const ok = confirm("¿Importar desde archivo JSON? Se añadirán los tableros a los actuales");
             if (ok) {
                 ui.importFile.value = "";
                 ui.importFile.click();
@@ -2561,13 +2563,7 @@
                     throw new Error("El archivo no contiene tableros.");
                 }
 
-                const confirmed = window.confirm(
-                    "¿Reemplazar los datos actuales con los importados? Esto borrará los tableros no guardados"
-                );
-
-                if (!confirmed) {
-                    return;
-                }
+                normalized.boards = boardData.boards.concat(normalized.boards);
 
                 boardData = normalized;
                 currentBoardId = boardData.boards[0].id;
