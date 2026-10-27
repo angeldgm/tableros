@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Tablero</title>
+    <title>Tableros</title>
 
     <style>
         :root {
@@ -463,6 +463,7 @@
         .editor {
             min-height: 7rem;
             max-height: 20rem;
+            max-width: 18rem;
             padding: 0.65rem;
             overflow-y: auto;
             background: white;
@@ -1747,7 +1748,7 @@
             submitButton.textContent = "Añadir";
             submitButton.addEventListener("click", () => {
                 resetComposer(columnId);
-            })
+            });
             cancelButton.hidden = true;
 
             editingItem = null;
@@ -1856,10 +1857,10 @@
 
             const range = getSelectionRange(editor);
 
-            // if (!range) {
-            //     showToast("Sitúa el cursor en el campo de texto primero.");
-            //     return;
-            // }
+            if (!range) {
+                showToast("Sitúa el cursor en el campo de texto primero.");
+                return false;
+            }
 
             // if (command === "createLink") {
             //     if (range.collapsed) {
@@ -1890,7 +1891,7 @@
             // }
 
             restoreSelection(editor, range);
-            document.execCommand(command, false);
+            return document.execCommand(command, false);
 
             editor.focus();
         }
@@ -2061,10 +2062,21 @@
             if (action === "format") {
                 const composer = button.closest(".composer");
                 const formatButtons = document.querySelectorAll('button[data-command="' + button.dataset.command + '"');
-                formatButtons.forEach((formatButton) => {
-                    formatButton.classList.toggle("active");
-                })
-                formatEditor(composer.dataset.columnId, button.dataset.command);
+                const wasFormatApplied = formatEditor(composer.dataset.columnId, button.dataset.command);
+                const formats = ["bold", "italic", "underline"];
+                if (wasFormatApplied) {
+                    formats.forEach((format) => {
+                        const formatButtonsFormat = document.querySelectorAll('button[data-command="' + format + '"');
+                        formatButtonsFormat.forEach((formatButton) => {
+                            const currentStateEnabled = document.queryCommandState(format);
+                            if (currentStateEnabled) {
+                                formatButton.classList.add("active");
+                            } else {
+                                formatButton.classList.remove("active");
+                            }
+                        });
+                    });
+                }
                 return;
             }
 
