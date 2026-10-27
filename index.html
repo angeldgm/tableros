@@ -409,6 +409,9 @@
         }
 
         .composer {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
             margin-top: 0.85rem;
             padding: 0.75rem;
             background: rgb(255 255 255 / 78%);
@@ -1442,122 +1445,150 @@
                     </ul>
 
                     <form class="composer" data-column-id="${escapeHtml(column.id)}">
-                        <div class="composer-tabs" role="group" aria-label="Item type">
-                            <button
-                                class="composer-tab active"
-                                data-action="composer-type"
-                                data-composer-type="text"
-                                type="button"
-                                aria-pressed="true"
-                            >
-                                Texto
-                            </button>
-
-                            <button
-                                class="composer-tab"
-                                data-action="composer-type"
-                                data-composer-type="photo"
-                                type="button"
-                                aria-pressed="false"
-                            >
-                                Foto
-                            </button>
-                        </div>
-
-                        <div data-panel="text">
-                            <div class="editor-toolbar" aria-label="Text formatting">
+                        <button
+                            class="button small plus-icon"
+                            data-action="toggle-view-composer"
+                            type="button"
+                            title="Mostrar editor"
+                        >
+                            <svg aria-hidden="true" viewBox="0 0 24 24" width="16" height="16"
+                                fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 5v14" />
+                                <path d="M5 12h14" />
+                            </svg>
+                        </button>
+                        <button
+                            class="button small minus-icon"
+                            data-action="toggle-view-composer"
+                            type="button"
+                            title="Ocultar editor"
+                            hidden
+                        >
+                            <svg aria-hidden="true" viewBox="0 0 24 24" width="16" height="16"
+                                fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M5 12h14" />
+                            </svg>
+                        </button>
+                        <div class="composer-content" hidden>
+                            <div class="composer-tabs" role="group" aria-label="Item type">
                                 <button
-                                    data-action="format"
-                                    data-command="bold"
+                                    class="composer-tab active"
+                                    data-action="composer-type"
+                                    data-composer-type="text"
                                     type="button"
-                                    title="Bold"
+                                    aria-pressed="true"
                                 >
-                                    <strong>B</strong>
+                                    Texto
                                 </button>
 
                                 <button
-                                    data-action="format"
-                                    data-command="italic"
+                                    class="composer-tab"
+                                    data-action="composer-type"
+                                    data-composer-type="photo"
                                     type="button"
-                                    title="Italic"
+                                    aria-pressed="false"
                                 >
-                                    <em>I</em>
-                                </button>
-
-                                <button
-                                    data-action="format"
-                                    data-command="underline"
-                                    type="button"
-                                    title="Underline"
-                                >
-                                    <u>U</u>
+                                    Foto
                                 </button>
                             </div>
 
-                            <div
-                                class="editor"
-                                data-editor
-                                contenteditable="true"
-                                role="textbox"
-                                aria-multiline="true"
-                                spellcheck="true"
-                                data-placeholder="Escribe un texto..."
-                            ></div>
-                        </div>
-
-                        <div data-panel="photo" hidden>
-                            <div class="photo-controls">
-                                <label class="button file-button">
-                                    Escoger foto
-                                    <input
-                                        class="sr-only"
-                                        data-photo-file
-                                        type="file"
-                                        accept="image/png,image/jpeg,image/gif,image/webp,image/avif"
+                            <div data-panel="text">
+                                <div class="editor-toolbar" aria-label="Text formatting">
+                                    <button
+                                        data-action="format"
+                                        data-command="bold"
+                                        type="button"
+                                        title="Bold"
                                     >
-                                </label>
-
-                                <span class="photo-name" data-photo-name>
-                                    
-                                </span>
-
-                                <br>
-
-                                <button class="button paste-button" data-photo-paste>
-                                    Pegar foto
-                                </button>
-                            </div>
-
-                            <div class="selected-photo" data-photo-preview hidden>
-                                <img alt="Selected photo" data-photo-image>
-
-                                <div class="selected-photo-footer">
-                                    <span class="photo-name" data-photo-name></span>
+                                        <strong>B</strong>
+                                    </button>
 
                                     <button
-                                        class="button small danger"
-                                        data-action="clear-photo"
+                                        data-action="format"
+                                        data-command="italic"
                                         type="button"
+                                        title="Italic"
                                     >
-                                        Borrar
+                                        <em>I</em>
+                                    </button>
+
+                                    <button
+                                        data-action="format"
+                                        data-command="underline"
+                                        type="button"
+                                        title="Underline"
+                                    >
+                                        <u>U</u>
                                     </button>
                                 </div>
+
+                                <div
+                                    class="editor"
+                                    data-editor
+                                    contenteditable="true"
+                                    role="textbox"
+                                    aria-multiline="true"
+                                    spellcheck="true"
+                                    data-placeholder="Escribe un texto..."
+                                ></div>
                             </div>
-                        </div>
 
-                        <div class="composer-actions">
-                            <button class="button primary" type="submit">
-                                Añadir
-                            </button>
+                            <div data-panel="photo" hidden>
+                                <div class="photo-controls">
+                                    <label class="button file-button">
+                                        Escoger foto
+                                        <input
+                                            class="sr-only"
+                                            data-photo-file
+                                            type="file"
+                                            accept="image/png,image/jpeg,image/gif,image/webp,image/avif"
+                                        >
+                                    </label>
 
-                            <button
-                                class="button"
-                                data-action="cancel-edit"
-                                type="button"
-                                hidden
-                            >
-                                Cancelar
-                            </button>
+                                    <span class="photo-name" data-photo-name>
+                                        
+                                    </span>
+
+                                    <br>
+
+                                    <button class="button paste-button" data-photo-paste>
+                                        Pegar foto
+                                    </button>
+                                </div>
+
+                                <div class="selected-photo" data-photo-preview hidden>
+                                    <img alt="Selected photo" data-photo-image>
+
+                                    <div class="selected-photo-footer">
+                                        <span class="photo-name" data-photo-name></span>
+
+                                        <button
+                                            class="button small danger"
+                                            data-action="clear-photo"
+                                            type="button"
+                                        >
+                                            Borrar
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="composer-actions">
+                                <button class="button primary" type="submit">
+                                    Añadir
+                                </button>
+
+                                <button
+                                    class="button"
+                                    data-action="cancel-edit"
+                                    type="button"
+                                    hidden
+                                >
+                                    Cancelar
+                                </button>
+                            </div>
                         </div>
                     </form>
                 </section>
@@ -2212,6 +2243,15 @@
                 }
 
                 commitAndRender("Columna movida.");
+            }
+
+            if (action === "toggle-view-composer") {
+                const composer = button.closest(".composer");
+                const composerContent = composer.querySelector(".composer-content");
+                composer.querySelector(".plus-icon").hidden = !composer.querySelector(".plus-icon").hidden;
+                composer.querySelector(".minus-icon").hidden = !composer.querySelector(".minus-icon").hidden;
+                composerContent.hidden = !composerContent.hidden;
+                return;
             }
         }
 
