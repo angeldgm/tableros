@@ -736,7 +736,7 @@
             </div>
 
             <div class="board-actions">
-                <button id="add-column" class="button small" type="button">
+                <button id="add-column-on-left" class="button small" type="button">
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
                         width="20"
@@ -747,7 +747,25 @@
                         stroke-width="1.8"
                         stroke-linecap="round"
                         stroke-linejoin="round"
-                        aria-label="Añadir columna"
+                        aria-label="Añadir columna a la izquierda"
+                        role="img"
+                        >
+                        <rect x="10" y="4" width="11" height="16" rx="1.5" />
+                        <path d="M15.5 4v16M7 12H2m2.5-2.5v5" />
+                    </svg>
+                </button>
+                <button id="add-column-on-right" class="button small" type="button">
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="20"
+                        height="20"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.8"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        aria-label="Añadir columna a la derecha"
                         role="img"
                         >
                         <rect x="3" y="4" width="11" height="16" rx="1.5" />
@@ -793,7 +811,8 @@
             importBoard: document.getElementById("import-board"),
             exportBoard: document.getElementById("export-board"),
             importFile: document.getElementById("import-file"),
-            addColumn: document.getElementById("add-column"),
+            addColumnOnLeft: document.getElementById("add-column-on-left"),
+            addColumnOnRight: document.getElementById("add-column-on-right"),
             // deleteBoard: document.getElementById("delete-board"),
             columns: document.getElementById("columns"),
             toast: document.getElementById("toast"),
@@ -1109,7 +1128,7 @@
                     id,
                     type: "photo",
                     content: isSafePhotoDataUrl(content) ? content : "",
-                    name: String(child.name ?? child.alt ?? "Photo")
+                    name: String(child.name ?? child.alt ?? "Foto")
                 };
             }
 
@@ -1399,7 +1418,8 @@
 
             ui.boardName.value = board?.name ?? "";
             ui.boardName.disabled = !board;
-            ui.addColumn.disabled = !board;
+            ui.addColumnOnLeft.disabled = !board;
+            ui.addColumnOnRight.disabled = !board;
             // ui.deleteBoard.disabled = !board || boardData.boards.length <= 1;
 
             if (!board) {
@@ -2564,7 +2584,7 @@
             commitAndRender("Tablero borrado");
         }
 
-        function addColumn() {
+        function addColumn(onLeft) {
             const board = getCurrentBoard();
 
             if (!board) {
@@ -2581,11 +2601,17 @@
                 return;
             }
 
-            board.columns.push({
+            const newColumn = {
                 id: makeId("column"),
                 title: enteredTitle.trim() || suggestedTitle,
                 children: []
-            });
+            };
+
+            if (onLeft) {
+                board.columns.unshift(newColumn);
+            } else {
+                board.columns.push(newColumn);
+            }
 
             commitAndRender("Columna añadida");
         }
@@ -2711,7 +2737,8 @@
         ui.boardName.addEventListener("change", flushScheduledPersist);
         // ui.newBoard.addEventListener("click", addBoard);
         // ui.deleteBoard.addEventListener("click", deleteBoard);
-        ui.addColumn.addEventListener("click", addColumn);
+        ui.addColumnOnLeft.addEventListener("click", () => addColumn(true));
+        ui.addColumnOnRight.addEventListener("click", () => addColumn(false));
         ui.importBoard.addEventListener("click", importBoard);
         ui.exportBoard.addEventListener("click", exportBoard);
         ui.importFile.addEventListener("change", handleImportFile);
